@@ -3,3 +3,5 @@ dist/
 .idea/
 test/index.js
 test/index.js.map
+.cache
+test/dist
