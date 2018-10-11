@@ -1,10 +1,10 @@
 import { Component } from './Component';
-export * from './ComponentRenderer';
-export * from './ElementRenderer';
+export * from './CompositeRenderer';
+export * from './DOMRenderer';
 
-export type VNode = ElementVNode | ComponentVNode;
+export type VNode = DomVNode | CompositeVNode;
 
-export type ElementVNode = null | TextVNode | NonTextVNode;
+export type DomVNode = null | TextVNode | NonTextVNode;
 
 export type TextVNode = string | number;
 
@@ -13,7 +13,7 @@ export interface NonTextVNode {
   readonly props: Props;
   readonly children: VNode[];
 }
-export interface ComponentVNode {
+export interface CompositeVNode {
   readonly tag: typeof Component;
   readonly props: Props;
   readonly children: VNode[];
@@ -28,7 +28,7 @@ export interface State {
 
 export interface RendererTrait {
   getDom: () => RenderedDom;
-  mount();
+  mount(): RenderedDom;
   unmount();
   patch();
 }

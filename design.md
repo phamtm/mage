@@ -25,6 +25,7 @@ Data structures
 ## LIMITATIONS
 
 - cannot support children props
+- don't support functional components
 
 ```js
 App > Main > div;

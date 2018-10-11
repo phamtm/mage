@@ -1,5 +1,5 @@
 import { Component } from 'Component';
-import { ComponentVNode, NonTextVNode, Props, VNode } from 'type';
+import { CompositeVNode, NonTextVNode, Props, VNode } from 'type';
 export * from './Component';
 export * from './render';
 
@@ -7,10 +7,10 @@ export function h(
   tag: string | typeof Component,
   props: Props,
   ...children: VNode[]
-): NonTextVNode | ComponentVNode {
+): NonTextVNode | CompositeVNode {
   return {
     tag,
     props,
     children,
-  } as NonTextVNode | ComponentVNode;
+  } as NonTextVNode | CompositeVNode;
 }

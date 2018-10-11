@@ -2,7 +2,7 @@ import { Component, h, render } from '../src/index';
 
 class C extends Component {
   public render() {
-    return <h2>Take care</h2>;
+    return <h2 style="color:purple">Take care</h2>;
   }
 }
 
@@ -36,6 +36,7 @@ class A extends Component {
       <div>
         yo
         {this.state.timer}
+        <B />
         <B />
       </div>
     );

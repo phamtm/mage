@@ -1,9 +1,9 @@
 import { Component } from './Component';
-import { ComponentRenderer } from './ComponentRenderer';
-import { ElementRenderer } from './ElementRenderer';
+import { CompositeRenderer } from './CompositeRenderer';
+import { DOMRenderer } from './DOMRenderer';
 import {
-  ComponentVNode,
-  ElementVNode,
+  CompositeVNode,
+  DomVNode,
   NonTextVNode,
   RendererTrait,
   State,
@@ -31,11 +31,15 @@ export function flushUpdate() {
   });
 }
 
+export function instantiate(vnode: VNode): RendererTrait {
+  return isStringOrNumber(vnode) ||
+  typeof (vnode as NonTextVNode).tag === 'string'
+    ? new DOMRenderer(vnode as DomVNode)
+    : new CompositeRenderer(vnode as CompositeVNode);
+}
+
 export function mount(vnode: VNode): RendererTrait {
-  const instance =
-    isStringOrNumber(vnode) || typeof (vnode as NonTextVNode).tag === 'string'
-      ? new ElementRenderer(vnode as ElementVNode)
-      : new ComponentRenderer(vnode as ComponentVNode);
+  const instance = instantiate(vnode);
   instance.mount();
   return instance;
 }

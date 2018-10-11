@@ -1,29 +1,30 @@
-import { mount } from './render';
+import { instantiate } from './render';
 import {
-  ElementVNode,
+  DomVNode,
   MageHTMLElement,
   NonTextVNode,
   RenderedDom,
   RendererTrait,
 } from './type';
-import { isStringOrNumber, mountChildren } from './util';
+import { isStringOrNumber } from './util';
 
-export class ElementRenderer implements RendererTrait {
-  private vnode: ElementVNode;
-  private dom: RenderedDom;
+export class DOMRenderer implements RendererTrait {
+  private vnode: DomVNode;
+  private dom: RenderedDom | null;
   private children: RendererTrait[] | null;
 
-  constructor(vnode: ElementVNode) {
+  constructor(vnode: DomVNode) {
     this.vnode = vnode;
   }
 
-  public mount() {
+  public mount(): RenderedDom {
     const { vnode } = this;
     if (isStringOrNumber(vnode)) {
       this.dom = document.createTextNode(vnode + '');
     } else {
       this.dom = this.mountNonText(vnode as NonTextVNode);
     }
+    return this.dom;
   }
 
   public patch() {
@@ -63,19 +64,18 @@ export class ElementRenderer implements RendererTrait {
     // console.log(descriptor);
     // add props
     for (const key in props) {
-      const prop = props[key];
       if (key.startsWith('on')) {
         // TODO: handle event listener
       } else {
-        // TODO: handle children and style props
-        dom.setAttribute(name, prop);
+        dom.setAttribute(key, props[key]);
       }
     }
 
-    // console.log('children', children);
     if (Array.isArray(children)) {
-      this.children = children.map(child => mount(child));
-      mountChildren(dom, this.children.map(child => child.getDom()));
+      this.children = children.map(instantiate);
+      this.children
+        .map(child => child.mount())
+        .forEach(childNode => dom.appendChild(childNode));
     }
     return dom;
   }
