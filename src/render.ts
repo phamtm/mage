@@ -1,37 +1,41 @@
-import { Descriptor, State } from 'type';
-import { Renderer } from 'type';
+import { Component } from './Component';
 import { ComponentRenderer } from './ComponentRenderer';
 import { ElementRenderer } from './ElementRenderer';
+import {
+  ComponentVNode,
+  ElementVNode,
+  NonTextVNode,
+  RendererTrait,
+  State,
+  VNode,
+} from './type';
+import { isStringOrNumber } from './util';
 
-// const mounts = [];
 interface Update {
   state: State;
-  component: any;
+  component: Component;
 }
 const UpdateQueue: Update[] = [];
 
-// render mageElement into the dom node `parent`
-export function render(descriptor: Descriptor, parent: HTMLElement) {
-  // create a new instance of mageElement
-  const instance = mount(descriptor);
-  parent.appendChild(instance.getBackingDom());
+export function render(vnode: VNode, parent: HTMLElement) {
+  parent.appendChild(mount(vnode).getDom());
 }
 
-export function enqueueUpdate(partialState, component) {
+export function enqueueUpdate(partialState: State, component: Component) {
   UpdateQueue.push({ state: partialState, component });
 }
 
 export function flushUpdate() {
-  UpdateQueue.forEach(({ component, state }) => {
-    component.update(state);
+  UpdateQueue.forEach(({ component }) => {
+    component.renderer.patch();
   });
 }
 
-export function mount(descriptor): Renderer {
+export function mount(vnode: VNode): RendererTrait {
   const instance =
-    descriptor && typeof descriptor.type === 'function'
-      ? new ComponentRenderer(descriptor)
-      : new ElementRenderer(descriptor);
+    isStringOrNumber(vnode) || typeof (vnode as NonTextVNode).tag === 'string'
+      ? new ElementRenderer(vnode as ElementVNode)
+      : new ComponentRenderer(vnode as ComponentVNode);
   instance.mount();
   return instance;
 }

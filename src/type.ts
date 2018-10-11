@@ -1,26 +1,22 @@
 import { Component } from './Component';
-import { ComponentRenderer } from './ComponentRenderer';
-import { ElementRenderer } from './ElementRenderer';
 export * from './ComponentRenderer';
 export * from './ElementRenderer';
 
-export type Descriptor = MageElementDescriptor | MageComponentDescriptor | null;
+export type VNode = ElementVNode | ComponentVNode;
 
-export type MageElementDescriptor =
-  | string // text node
-  | number // text node
-  | {
-      readonly type: string; // html node
-      readonly props: Props;
-      readonly children: Descriptor[] | null;
-    };
+export type ElementVNode = null | TextVNode | NonTextVNode;
 
-export type ComponentType = typeof Component;
+export type TextVNode = string | number;
 
-export interface MageComponentDescriptor {
-  readonly type: ComponentType;
+export interface NonTextVNode {
+  readonly tag: string; // html node
   readonly props: Props;
-  readonly children: Descriptor[] | null;
+  readonly children: VNode[];
+}
+export interface ComponentVNode {
+  readonly tag: typeof Component;
+  readonly props: Props;
+  readonly children: VNode[];
 }
 
 export interface Props {
@@ -30,6 +26,23 @@ export interface State {
   readonly [key: string]: any;
 }
 
-// Renderer related
-export type Renderer = ElementRenderer | ComponentRenderer;
-export type RenderedNode = HTMLElement | Text;
+export interface RendererTrait {
+  getDom: () => RenderedDom;
+  mount();
+  unmount();
+  patch();
+}
+
+export interface RenderedState {
+  tag: string;
+  dom: MageHTMLElement;
+  key?: null | string;
+  props: Props;
+  state?: State;
+  children?: RenderedState[] | null;
+}
+
+export interface MageHTMLElement extends HTMLElement {
+  __rstate: RenderedState;
+}
+export type RenderedDom = MageHTMLElement | Text;

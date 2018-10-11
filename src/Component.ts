@@ -1,22 +1,24 @@
 import { enqueueUpdate } from './render';
-import { Descriptor, Props, Renderer, State } from './type';
+import { Props, RendererTrait, State, VNode } from './type';
 
 export class Component {
   public props: Props;
   public state: State;
-  public renderer: Renderer;
+  public renderer: RendererTrait;
 
-  constructor(props) {
+  constructor(props: Props) {
     this.props = props || {};
     this.state = {};
   }
 
-  public render(): Descriptor {
+  /**
+   * Return the vnode of the components
+   */
+  public render(): VNode {
     return null;
   }
 
   protected setState(state: State) {
     enqueueUpdate(state, this);
-    this.renderer.update();
   }
 }

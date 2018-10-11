@@ -1,15 +1,16 @@
-import { Descriptor, Props } from 'type';
+import { Component } from 'Component';
+import { ComponentVNode, NonTextVNode, Props, VNode } from 'type';
 export * from './Component';
 export * from './render';
 
 export function h(
-  type: any,
+  tag: string | typeof Component,
   props: Props,
-  ...children: Descriptor[]
-): Descriptor {
+  ...children: VNode[]
+): NonTextVNode | ComponentVNode {
   return {
-    type,
+    tag,
     props,
     children,
-  };
+  } as NonTextVNode | ComponentVNode;
 }

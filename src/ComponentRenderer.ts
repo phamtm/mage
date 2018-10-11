@@ -1,36 +1,33 @@
 import { mount } from './render';
-import { MageComponentDescriptor, Renderer } from './type';
+import { ComponentVNode, RendererTrait } from './type';
 
-export class ComponentRenderer {
-  private descriptor: MageComponentDescriptor;
-  private childInstance: Renderer;
+export class ComponentRenderer implements RendererTrait {
+  private vnode: ComponentVNode;
+  private child: RendererTrait | null;
 
-  constructor(descriptor) {
-    this.descriptor = descriptor;
+  constructor(vnode: ComponentVNode) {
+    this.vnode = vnode;
   }
 
   public mount() {
-    // console.group("mount:composite");
-
     // setup
-    const { descriptor: { type, props } } = this;
-    const descInstance = new type(props);
-    descInstance.renderer = this;
+    const { vnode: { tag, props } } = this;
+    const component = new tag(props);
+    component.renderer = this;
 
-    // mount
-    const renderDescriptor = descInstance.render();
-    // console.log("rd", renderDescriptor);
-    const childInstance = mount(renderDescriptor);
-    this.childInstance = childInstance;
-
-    // console.groupEnd("mount:composite");
+    // mount the vnode
+    this.child = mount(component.render());
   }
 
-  public update() {
+  public patch() {
     // console.log('update');
   }
 
-  public getBackingDom() {
-    return this.childInstance.getBackingDom();
+  public unmount() {
+    // do something
+  }
+
+  public getDom() {
+    return this.child.getDom();
   }
 }
