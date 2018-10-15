@@ -9,7 +9,7 @@
   "author": "",
   "license": "UNLICENSED",
   "devDependencies": {
-    "events-light": "^1.0.5",
+    "parcel": "^1.10.3",
     "prettier": "^1.5.3",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.15.0",

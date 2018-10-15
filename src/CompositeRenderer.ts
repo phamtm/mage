@@ -1,9 +1,11 @@
+import { Component } from './Component';
 import { instantiate } from './render';
-import { CompositeVNode, RenderedDom, RendererTrait } from './type';
+import { CompositeVNode, RenderedDom, Renderer } from './type';
 
-export class CompositeRenderer implements RendererTrait {
+export class CompositeRenderer implements Renderer {
   private vnode: CompositeVNode;
-  private child: RendererTrait | null;
+  private innerInstance: Renderer;
+  private compositeInstance: Component;
 
   constructor(vnode: CompositeVNode) {
     this.vnode = vnode;
@@ -13,22 +15,43 @@ export class CompositeRenderer implements RendererTrait {
     // setup
     const { vnode: { tag, props } } = this;
     const component = new tag(props);
+    this.compositeInstance = component;
     component.renderer = this;
 
     // mount the vnode
-    this.child = instantiate(component.render());
-    return this.child.mount();
+    this.innerInstance = instantiate(component.render());
+    return this.innerInstance.mount();
   }
 
-  public patch() {
-    // console.log('update');
+  public patch(newVNode: CompositeVNode) {
+    // this vnode and vnode are of the same type
+    this.compositeInstance.props = newVNode.props;
+    this.vnode = newVNode;
+    const nextVNode = this.compositeInstance.render();
+
+    // Same type -> patch
+    if (this.vnode.tag === newVNode.tag) {
+      this.innerInstance.patch(nextVNode);
+      return;
+    }
+
+    // Different type -> unmount old node and mount new node
+    this.innerInstance.unmount();
+    const prevDomNode = this.innerInstance.getDom();
+    const nextRenderedInstance = instantiate(nextVNode);
+    this.innerInstance = nextRenderedInstance;
+    prevDomNode.parentNode.replaceChild(
+      nextRenderedInstance.mount(),
+      prevDomNode
+    );
   }
 
   public unmount() {
     // do something
+    this.innerInstance.unmount();
   }
 
   public getDom() {
-    return this.child.getDom();
+    return this.innerInstance.getDom();
   }
 }

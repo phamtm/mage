@@ -23,21 +23,21 @@ class A extends Component {
       msg: 'Hello',
       timer: 1,
     };
-    // setTimeout(
-    //   () => this.setState({ msg: "Xin chao", timer: this.state.timer }),
-    //   2000
-    // );
-    setInterval(() => this.setState({ timer: this.state.timer + 1 }), 1000);
+
+    setInterval(() => {
+      this.setState({ timer: 1 - this.state.timer });
+    }, 1000);
   }
 
   public render() {
     // console.log(this.state);
     return (
-      <div>
-        yo
+      <div className="flex flex-column">
         {this.state.timer}
-        <B />
-        <B />
+        <div className="mt1">
+          {this.state.timer > 0.5 ? <B /> : 'Not b'}
+        </div>
+        <input className="mt1" />
       </div>
     );
   }

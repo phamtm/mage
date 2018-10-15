@@ -1,44 +1,49 @@
+import { __DEV__ } from 'constant';
 import { Component } from './Component';
 import { CompositeRenderer } from './CompositeRenderer';
 import { DOMRenderer } from './DOMRenderer';
+import { TextRenderer } from './TextRenderer';
 import {
   CompositeVNode,
-  DomVNode,
   NonTextVNode,
-  RendererTrait,
-  State,
+  Renderer,
+  TextVNode,
   VNode,
 } from './type';
 import { isStringOrNumber } from './util';
 
-interface Update {
-  state: State;
-  component: Component;
-}
-const UpdateQueue: Update[] = [];
+window.mage = { root: null, internal: null };
+
+const UpdateQueue: Component[] = [];
 
 export function render(vnode: VNode, parent: HTMLElement) {
-  parent.appendChild(mount(vnode).getDom());
+  const renderedInstance = mount(vnode);
+  parent.appendChild(renderedInstance.getDom());
+  window.mage.root = vnode;
+  window.mage.internal = renderedInstance;
 }
 
-export function enqueueUpdate(partialState: State, component: Component) {
-  UpdateQueue.push({ state: partialState, component });
+// export function unmountTree(node: MageHTMLElement) {
+//   node.__rstate.
+// }
+
+export function enqueueUpdate(component: Component) {
+  UpdateQueue.push(component);
+  component.patch();
+  UpdateQueue.pop();
 }
 
-export function flushUpdate() {
-  UpdateQueue.forEach(({ component }) => {
-    component.renderer.patch();
-  });
+export function instantiate(vnode: VNode): Renderer {
+  if (isStringOrNumber(vnode)) {
+    return new TextRenderer(vnode as TextVNode);
+  }
+  if (typeof (vnode as NonTextVNode).tag === 'string') {
+    return new DOMRenderer(vnode as NonTextVNode);
+  }
+  return new CompositeRenderer(vnode as CompositeVNode);
 }
 
-export function instantiate(vnode: VNode): RendererTrait {
-  return isStringOrNumber(vnode) ||
-  typeof (vnode as NonTextVNode).tag === 'string'
-    ? new DOMRenderer(vnode as DomVNode)
-    : new CompositeRenderer(vnode as CompositeVNode);
-}
-
-export function mount(vnode: VNode): RendererTrait {
+export function mount(vnode: VNode): Renderer {
   const instance = instantiate(vnode);
   instance.mount();
   return instance;

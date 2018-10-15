@@ -1,10 +1,10 @@
 import { enqueueUpdate } from './render';
-import { Props, RendererTrait, State, VNode } from './type';
+import { Props, Renderer, State, VNode } from './type';
 
 export class Component {
   public props: Props;
   public state: State;
-  public renderer: RendererTrait;
+  public renderer: Renderer;
 
   constructor(props: Props) {
     this.props = props || {};
@@ -18,7 +18,12 @@ export class Component {
     return null;
   }
 
+  public patch() {
+    this.renderer.patch(this.render());
+  }
+
   protected setState(state: State) {
-    enqueueUpdate(state, this);
+    Object.assign(this.state, state);
+    enqueueUpdate(this);
   }
 }

@@ -2,10 +2,8 @@ import { Component } from './Component';
 export * from './CompositeRenderer';
 export * from './DOMRenderer';
 
-export type VNode = DomVNode | CompositeVNode;
-
-export type DomVNode = null | TextVNode | NonTextVNode;
-
+// VDom related type
+export type VNode = TextVNode | NonTextVNode | CompositeVNode;
 export type TextVNode = string | number;
 
 export interface NonTextVNode {
@@ -26,13 +24,10 @@ export interface State {
   readonly [key: string]: any;
 }
 
-export interface RendererTrait {
-  getDom: () => RenderedDom;
-  mount(): RenderedDom;
-  unmount();
-  patch();
+// Render related types
+export interface MageHTMLElement extends HTMLElement {
+  __rstate: RenderedState;
 }
-
 export interface RenderedState {
   tag: string;
   dom: MageHTMLElement;
@@ -41,8 +36,10 @@ export interface RenderedState {
   state?: State;
   children?: RenderedState[] | null;
 }
-
-export interface MageHTMLElement extends HTMLElement {
-  __rstate: RenderedState;
-}
 export type RenderedDom = MageHTMLElement | Text;
+export interface Renderer {
+  getDom: () => RenderedDom;
+  mount(): RenderedDom;
+  unmount(): void;
+  patch(vnode: VNode): void;
+}
